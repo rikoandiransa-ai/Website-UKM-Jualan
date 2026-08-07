@@ -1,0 +1,6 @@
+{
+  "name": "Toko UMKM - Platform Penjualan Online",
+  "description": "Aplikasi website toko online modern untuk UMKM dengan fitur Manajemen Produk, Kategori, Promo, Banner, Laporan Penjualan, PDF/Excel export, dan Panel Admin.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
