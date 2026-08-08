@@ -11,11 +11,11 @@ export const FaqPage: React.FC = () => {
     },
     {
       q: 'Berapa lama estimasi pengiriman barang sampai ke rumah?',
-      a: 'Estimasi pengiriman tergantung pada pilihan kurir yang Anda pilih saat checkout. Untuk JNE/TIKI ONS biasanya 1 hari kerja, sedangkan layanan regular memakan waktu 2-3 hari kerja.',
+      a: 'Estimasi pengiriman tergantung pada pilihan kurir: GoSend Instant & GrabExpress Instant (sameday/beberapa jam sampai), JNE & TIKI ONS (1 hari kerja), serta POS Indonesia & JNE Regular (2-3 hari kerja).',
     },
     {
       q: 'Metode pembayaran apa saja yang didukung?',
-      a: 'Kami menerima transfer bank manual (BCA & Mandiri) serta pembayaran instan melalui QRIS All Payment (Gopay, OVO, Dana, ShopeePay, dan M-Banking).',
+      a: 'Kami menerima transfer bank (BCA, Mandiri, BNI, BRI, BSI), QRIS All Payment (GoPay, OVO, DANA, ShopeePay), Kartu Kredit/Debit Online (Visa/Mastercard), pembayaran tunai di kasir Indomaret/Alfamart, serta layanan COD (Bayar di Tempat).',
     },
     {
       q: 'Bagaimana jika barang yang diterima rusak atau kadaluarsa?',

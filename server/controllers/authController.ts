@@ -83,7 +83,25 @@ export const login = async (req: Request, res: Response) => {
 export const getProfile = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.id;
-    const user = db.users.find((u) => u.id === userId);
+    const userEmail = req.user?.email;
+    let user = db.users.find(
+      (u) => u.id === userId || (userEmail && u.email.toLowerCase() === userEmail.toLowerCase())
+    );
+
+    if (!user && req.user) {
+      // Restore user into in-memory db from valid signed JWT payload
+      user = {
+        id: req.user.id,
+        name: req.user.name || 'Pengguna UMKM',
+        email: req.user.email ? req.user.email.toLowerCase() : '',
+        phone: '',
+        address: '',
+        role: req.user.role || 'customer',
+        created_at: new Date().toISOString(),
+      };
+      db.users.push(user);
+    }
+
     if (!user) {
       return res.status(404).json({ success: false, message: 'User tidak ditemukan.' });
     }

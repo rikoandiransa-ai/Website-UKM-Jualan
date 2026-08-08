@@ -65,40 +65,30 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm border-b border-emerald-100">
       {/* Top Banner Bar */}
-      <div className="bg-emerald-800 text-white text-xs py-1.5 px-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <span className="bg-emerald-600 text-[10px] font-bold uppercase px-2 py-0.5 rounded text-white tracking-wider">
-              Produk Asli UMKM
-            </span>
-            <span className="hidden sm:inline text-emerald-100">
-              Dukung Usaha Lokal Indonesia &bull; Gratis Ongkir Min. Pembelian Rp 100rb!
-            </span>
-          </div>
-          <div className="flex items-center gap-4">
-            {isAdmin && (
-              <button
-                onClick={() => setIsAdminView(!isAdminView)}
-                className={`flex items-center gap-1 px-2.5 py-0.5 rounded font-medium text-xs transition ${
-                  isAdminView
-                    ? 'bg-amber-400 text-slate-900 font-semibold'
-                    : 'bg-emerald-700 hover:bg-emerald-600 text-white'
-                }`}
-              >
-                <ShieldCheck className="w-3.5 h-3.5" />
-                {isAdminView ? 'Mode Toko' : 'Panel Admin'}
-              </button>
-            )}
-            <a
-              href="https://wa.me/6281234567890"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 hover:text-emerald-200 transition"
+      <div className="bg-emerald-800 text-white text-[11px] py-1.5 px-3 sm:px-4">
+        <div className="max-w-7xl mx-auto flex justify-end items-center gap-3 text-[10px] sm:text-xs">
+          {isAdmin && (
+            <button
+              onClick={() => setIsAdminView(!isAdminView)}
+              className={`flex items-center gap-1 px-2 py-0.5 rounded font-medium text-[10px] transition ${
+                isAdminView
+                  ? 'bg-amber-400 text-slate-900 font-semibold'
+                  : 'bg-emerald-700 hover:bg-emerald-600 text-white'
+              }`}
             >
-              <Phone className="w-3 h-3" />
-              <span className="hidden md:inline">Bantuan WhatsApp: 0812-3456-7890</span>
-            </a>
-          </div>
+              <ShieldCheck className="w-3 h-3" />
+              {isAdminView ? 'Mode Toko' : 'Panel Admin'}
+            </button>
+          )}
+          <a
+            href="https://wa.me/6281234567890"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 hover:text-emerald-200 transition text-emerald-100 font-semibold"
+          >
+            <Phone className="w-3 h-3 text-emerald-300" />
+            <span>WhatsApp Support: 0812-3456-7890</span>
+          </a>
         </div>
       </div>
 

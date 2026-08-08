@@ -18,13 +18,13 @@ export const HowToOrderPage: React.FC = () => {
     {
       num: '03',
       title: 'Lengkapi Data Pengiriman',
-      desc: 'Isi nama penerima, nomor WhatsApp aktif, dan alamat tujuan pengiriman lengkap beserta pilihan kurir pengiriman favorit Anda.',
+      desc: 'Isi nama penerima, nomor WhatsApp aktif, dan alamat pengiriman lengkap, lalu pilih kurir favorit Anda (JNE, TIKI, POS, GoSend, atau GrabExpress).',
       icon: Truck,
     },
     {
       num: '04',
-      title: 'Bayar & Upload Bukti Transfer',
-      desc: 'Lakukan pembayaran sesuai total tagihan ke rekening bank resmi atau scan QRIS, lalu unggah foto bukti transfer di halaman konfirmasi.',
+      title: 'Bayar & Konfirmasi Pembayaran',
+      desc: 'Pilih metode pembayaran sesuai kenyamanan Anda (Transfer Bank BCA/Mandiri/BNI/BRI/BSI, QRIS, Kartu Kredit/Debit, Gerai Indomaret/Alfamart, atau COD).',
       icon: CreditCard,
     },
     {

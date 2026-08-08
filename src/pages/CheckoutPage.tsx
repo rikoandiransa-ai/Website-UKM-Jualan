@@ -10,7 +10,7 @@ interface CheckoutPageProps {
 }
 
 export const CheckoutPage: React.FC<CheckoutPageProps> = ({ setActiveTab, onOrderSuccess }) => {
-  const { cart, cartSubtotal, cartDiscount, appliedPromo, clearCart } = useCart();
+  const { cart, subtotal, discountAmount, appliedPromo, clearCart } = useCart();
   const { user } = useAuth();
 
   const [recipientName, setRecipientName] = useState(user?.name || '');
@@ -30,9 +30,10 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ setActiveTab, onOrde
     else if (val.includes('TIKI')) setShippingCost(22000);
     else if (val.includes('POS')) setShippingCost(12000);
     else if (val.includes('GoSend')) setShippingCost(30000);
+    else if (val.includes('Grab')) setShippingCost(28000);
   };
 
-  const finalTotal = cartSubtotal - cartDiscount + shippingCost;
+  const finalTotal = Math.max(0, subtotal - discountAmount + shippingCost);
 
   const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,12 +46,23 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ setActiveTab, onOrde
     setError('');
 
     try {
-      const items = cart.map((c) => ({
-        product_id: c.product_id,
-        quantity: c.quantity,
-        price: c.price,
-        variation_info: c.variation_info,
-      }));
+      const items = cart.map((c) => {
+        const product = c.product;
+        const priceModifier = c.selectedVariation?.price_modifier || 0;
+        const basePrice = product.price + priceModifier;
+        const discountPercent = product.discount || 0;
+        const finalUnitPrice = basePrice * (1 - discountPercent / 100);
+        const variationInfo = c.selectedVariation
+          ? `${c.selectedVariation.variation_name}: ${c.selectedVariation.option_value}`
+          : '';
+
+        return {
+          product_id: product.id,
+          quantity: c.quantity,
+          price: finalUnitPrice,
+          variation_info: variationInfo,
+        };
+      });
 
       const res = await api.post('/orders', {
         recipient_name: recipientName,
@@ -152,6 +164,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ setActiveTab, onOrde
                 <option value="TIKI Over Night Service (1 Hari)">TIKI ONS (Express) - Rp 22.000</option>
                 <option value="POS Indonesia Kilat (2-4 Hari)">POS Indonesia Kilat - Rp 12.000</option>
                 <option value="GoSend Instant (Area Jabodetabek)">GoSend Instant - Rp 30.000</option>
+                <option value="GrabExpress Instant (Jabodetabek & Kota Besar)">GrabExpress Instant - Rp 28.000</option>
               </select>
             </div>
           </div>
@@ -164,9 +177,15 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ setActiveTab, onOrde
 
             <div className="space-y-2">
               {[
-                { id: 'Transfer Bank BCA', label: 'Transfer Bank BCA (Manual Check)', desc: 'No. Rek: 123-456-7890 a/n Toko Karya UMKM' },
+                { id: 'Transfer Bank BCA', label: 'Transfer Bank BCA', desc: 'No. Rek: 123-456-7890 a/n Toko Karya UMKM' },
                 { id: 'Transfer Bank Mandiri', label: 'Transfer Bank Mandiri', desc: 'No. Rek: 987-654-3210 a/n Toko Karya UMKM' },
-                { id: 'QRIS Instant Scan', label: 'QRIS All Payment (Gopay/OVO/Dana/ShopeePay)', desc: 'Scan QRIS otomatis di halaman berikutnya' },
+                { id: 'Transfer Bank BNI', label: 'Transfer Bank BNI', desc: 'No. Rek: 456-789-0123 a/n Toko Karya UMKM' },
+                { id: 'Transfer Bank BRI', label: 'Transfer Bank BRI', desc: 'No. Rek: 321-098-7654 a/n Toko Karya UMKM' },
+                { id: 'Transfer Bank BSI', label: 'Bank Syariah Indonesia (BSI)', desc: 'No. Rek: 712-345-6789 a/n Toko Karya UMKM' },
+                { id: 'QRIS Instant Scan', label: 'QRIS All Payment (GoPay/OVO/DANA/ShopeePay)', desc: 'Scan QRIS otomatis via aplikasi e-wallet / mobile banking' },
+                { id: 'Kartu Kredit / Debit', label: 'Kartu Kredit / Debit Online (Visa / Mastercard)', desc: 'Pembayaran instan terenkripsi aman' },
+                { id: 'Gerai Indomaret / Alfamart', label: 'Gerai Indomaret / Alfamart', desc: 'Bayar tunai di kasir toko retail terdekat dengan kode pembayaran' },
+                { id: 'COD (Bayar di Tempat)', label: 'COD (Cash On Delivery)', desc: 'Bayar tunai kepada kurir saat pesanan sampai di alamat tujuan' },
               ].map((pm) => (
                 <label
                   key={pm.id}
@@ -213,27 +232,39 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ setActiveTab, onOrde
             </h3>
 
             <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-              {cart.map((item, idx) => (
-                <div key={idx} className="flex justify-between text-[11px] text-slate-600">
-                  <span className="line-clamp-1 flex-1 pr-2">
-                    {item.quantity}x {item.product_name}
-                  </span>
-                  <span className="font-semibold text-slate-800 shrink-0">
-                    Rp {(item.price * item.quantity).toLocaleString('id-ID')}
-                  </span>
-                </div>
-              ))}
+              {cart.map((item, idx) => {
+                const product = item.product;
+                const priceModifier = item.selectedVariation?.price_modifier || 0;
+                const basePrice = product.price + priceModifier;
+                const discountPercent = product.discount || 0;
+                const finalUnitPrice = basePrice * (1 - discountPercent / 100);
+                const itemTotal = finalUnitPrice * item.quantity;
+                const variationSuffix = item.selectedVariation
+                  ? ` (${item.selectedVariation.option_value})`
+                  : '';
+
+                return (
+                  <div key={idx} className="flex justify-between text-[11px] text-slate-600">
+                    <span className="line-clamp-1 flex-1 pr-2">
+                      {item.quantity}x {product.name}{variationSuffix}
+                    </span>
+                    <span className="font-semibold text-slate-800 shrink-0">
+                      Rp {Math.round(itemTotal).toLocaleString('id-ID')}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
 
             <div className="border-t border-slate-100 pt-3 space-y-1.5 text-slate-600">
               <div className="flex justify-between">
                 <span>Subtotal Produk</span>
-                <span>Rp {cartSubtotal.toLocaleString('id-ID')}</span>
+                <span>Rp {Math.round(subtotal).toLocaleString('id-ID')}</span>
               </div>
-              {cartDiscount > 0 && (
+              {discountAmount > 0 && (
                 <div className="flex justify-between text-emerald-700">
                   <span>Diskon Voucher</span>
-                  <span>- Rp {cartDiscount.toLocaleString('id-ID')}</span>
+                  <span>- Rp {Math.round(discountAmount).toLocaleString('id-ID')}</span>
                 </div>
               )}
               <div className="flex justify-between">
@@ -244,7 +275,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ setActiveTab, onOrde
 
             <div className="border-t border-slate-100 pt-3 flex justify-between items-baseline font-extrabold text-slate-900 text-base">
               <span>Total Tagihan</span>
-              <span className="text-emerald-800">Rp {finalTotal.toLocaleString('id-ID')}</span>
+              <span className="text-emerald-800">Rp {Math.round(finalTotal).toLocaleString('id-ID')}</span>
             </div>
 
             <button
@@ -264,3 +295,4 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ setActiveTab, onOrde
     </div>
   );
 };
+

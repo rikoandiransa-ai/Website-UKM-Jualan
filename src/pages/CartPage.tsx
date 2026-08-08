@@ -7,20 +7,32 @@ interface CartPageProps {
 }
 
 export const CartPage: React.FC<CartPageProps> = ({ setActiveTab }) => {
-  const { cart, removeFromCart, updateQuantity, clearCart, cartSubtotal, cartDiscount, cartTotal, appliedPromo, applyPromo, removePromo } = useCart();
+  const {
+    cart,
+    removeFromCart,
+    updateQuantity,
+    clearCart,
+    subtotal,
+    discountAmount,
+    grandTotal,
+    appliedPromo,
+    applyPromoCode,
+    removePromoCode,
+  } = useCart();
+
   const [promoCodeInput, setPromoCodeInput] = React.useState('');
   const [promoMsg, setPromoMsg] = React.useState({ text: '', isError: false });
 
   const handleApplyPromo = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!promoCodeInput.trim()) return;
-    const result = await applyPromo(promoCodeInput.trim());
+    const result = await applyPromoCode(promoCodeInput.trim());
     setPromoMsg({ text: result.message, isError: !result.success });
   };
 
   if (cart.length === 0) {
     return (
-      <div className="bg-white rounded-3xl p-12 text-center border border-slate-100 space-y-4 max-w-lg mx-auto my-8">
+      <div className="bg-white rounded-3xl p-8 sm:p-12 text-center border border-slate-100 space-y-4 max-w-lg mx-auto my-8 shadow-sm">
         <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
           <ShoppingBag className="w-8 h-8" />
         </div>
@@ -49,75 +61,99 @@ export const CartPage: React.FC<CartPageProps> = ({ setActiveTab }) => {
           onClick={clearCart}
           className="text-xs font-semibold text-rose-600 hover:underline flex items-center gap-1"
         >
-          <Trash2 className="w-3.5 h-3.5" /> Kosongkan Keranjang
+          <Trash2 className="w-3.5 h-3.5" /> Kosongkan
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Cart Item Table */}
+        {/* Cart Item Table / List */}
         <div className="lg:col-span-2 space-y-3">
-          {cart.map((item) => (
-            <div
-              key={`${item.product_id}-${item.variation_info}`}
-              className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4"
-            >
-              <div className="flex items-center gap-3.5 w-full sm:w-auto">
-                <img
-                  src={item.product_image}
-                  alt={item.product_name}
-                  referrerPolicy="no-referrer"
-                  className="w-16 h-16 rounded-xl object-cover bg-slate-50 border border-slate-100 shrink-0"
-                />
-                <div>
-                  <h3 className="font-bold text-xs sm:text-sm text-slate-800 line-clamp-1">
-                    {item.product_name}
-                  </h3>
-                  {item.variation_info && (
-                    <span className="text-[10px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md inline-block my-0.5">
-                      {item.variation_info}
+          {cart.map((item) => {
+            const product = item.product;
+            const variationKey = item.selectedVariation
+              ? `${item.selectedVariation.variation_name}-${item.selectedVariation.option_value}`
+              : '';
+            const variationLabel = item.selectedVariation
+              ? `${item.selectedVariation.variation_name}: ${item.selectedVariation.option_value}`
+              : null;
+
+            const priceModifier = item.selectedVariation?.price_modifier || 0;
+            const basePrice = product.price + priceModifier;
+            const discountPercent = product.discount || 0;
+            const finalUnitPrice = basePrice * (1 - discountPercent / 100);
+            const itemSubtotal = finalUnitPrice * item.quantity;
+
+            return (
+              <div
+                key={`${product.id}-${variationKey}`}
+                className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4"
+              >
+                <div className="flex items-center gap-3.5 w-full sm:w-auto">
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    referrerPolicy="no-referrer"
+                    className="w-16 h-16 rounded-xl object-cover bg-slate-50 border border-slate-100 shrink-0"
+                  />
+                  <div>
+                    <h3 className="font-bold text-xs sm:text-sm text-slate-800 line-clamp-1">
+                      {product.name}
+                    </h3>
+                    {variationLabel && (
+                      <span className="text-[10px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md inline-block my-0.5">
+                        {variationLabel}
+                      </span>
+                    )}
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="text-xs font-bold text-emerald-800">
+                        Rp {Math.round(finalUnitPrice).toLocaleString('id-ID')}
+                      </p>
+                      {discountPercent > 0 && (
+                        <span className="text-[10px] text-slate-400 line-through">
+                          Rp {basePrice.toLocaleString('id-ID')}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quantity controls & subtotal */}
+                <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 w-full sm:w-auto border-t sm:border-0 pt-2 sm:pt-0 border-slate-100">
+                  <div className="flex items-center border border-slate-200 rounded-xl bg-slate-50 p-1">
+                    <button
+                      onClick={() => updateQuantity(product.id, item.quantity - 1, variationKey)}
+                      className="w-6 h-6 rounded bg-white shadow-xs font-bold text-slate-700 hover:bg-slate-100 text-xs flex items-center justify-center"
+                    >
+                      -
+                    </button>
+                    <span className="w-8 text-center font-bold text-xs text-slate-800">
+                      {item.quantity}
                     </span>
-                  )}
-                  <p className="text-xs font-semibold text-emerald-800 mt-1">
-                    Rp {item.price.toLocaleString('id-ID')} / unit
-                  </p>
-                </div>
-              </div>
+                    <button
+                      onClick={() => updateQuantity(product.id, item.quantity + 1, variationKey)}
+                      className="w-6 h-6 rounded bg-white shadow-xs font-bold text-slate-700 hover:bg-slate-100 text-xs flex items-center justify-center"
+                    >
+                      +
+                    </button>
+                  </div>
 
-              {/* Quantity controls & subtotal */}
-              <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto border-t sm:border-0 pt-2 sm:pt-0 border-slate-100">
-                <div className="flex items-center border border-slate-200 rounded-xl bg-slate-50 p-1">
+                  <div className="text-right">
+                    <p className="font-extrabold text-xs sm:text-sm text-slate-900">
+                      Rp {Math.round(itemSubtotal).toLocaleString('id-ID')}
+                    </p>
+                  </div>
+
                   <button
-                    onClick={() => updateQuantity(item.product_id, item.variation_info, item.quantity - 1)}
-                    className="w-6 h-6 rounded bg-white shadow-xs font-bold text-slate-700 hover:bg-slate-100 text-xs flex items-center justify-center"
+                    onClick={() => removeFromCart(product.id, variationKey)}
+                    className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition"
+                    title="Hapus Produk"
                   >
-                    -
-                  </button>
-                  <span className="w-8 text-center font-bold text-xs text-slate-800">
-                    {item.quantity}
-                  </span>
-                  <button
-                    onClick={() => updateQuantity(item.product_id, item.variation_info, item.quantity + 1)}
-                    className="w-6 h-6 rounded bg-white shadow-xs font-bold text-slate-700 hover:bg-slate-100 text-xs flex items-center justify-center"
-                  >
-                    +
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
-
-                <div className="text-right">
-                  <p className="font-extrabold text-xs sm:text-sm text-slate-900">
-                    Rp {(item.price * item.quantity).toLocaleString('id-ID')}
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => removeFromCart(item.product_id, item.variation_info)}
-                  className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Order Summary & Promo Voucher Side Panel */}
@@ -132,11 +168,11 @@ export const CartPage: React.FC<CartPageProps> = ({ setActiveTab }) => {
                 <div>
                   <p className="font-bold text-emerald-900 font-mono">{appliedPromo.code}</p>
                   <p className="text-[11px] text-emerald-700">
-                    Potongan {appliedPromo.discount_percent}% (Hemat Rp {cartDiscount.toLocaleString('id-ID')})
+                    Potongan {appliedPromo.discountPercent}% (Hemat Rp {Math.round(discountAmount).toLocaleString('id-ID')})
                   </p>
                 </div>
                 <button
-                  onClick={removePromo}
+                  onClick={removePromoCode}
                   className="text-xs text-rose-600 font-bold hover:underline"
                 >
                   Hapus
@@ -174,19 +210,21 @@ export const CartPage: React.FC<CartPageProps> = ({ setActiveTab }) => {
             <div className="space-y-2 text-slate-600">
               <div className="flex justify-between">
                 <span>Total Harga Produk</span>
-                <span>Rp {cartSubtotal.toLocaleString('id-ID')}</span>
+                <span>Rp {Math.round(subtotal).toLocaleString('id-ID')}</span>
               </div>
-              {cartDiscount > 0 && (
+              {discountAmount > 0 && (
                 <div className="flex justify-between text-emerald-700 font-medium">
                   <span>Diskon Promo</span>
-                  <span>- Rp {cartDiscount.toLocaleString('id-ID')}</span>
+                  <span>- Rp {Math.round(discountAmount).toLocaleString('id-ID')}</span>
                 </div>
               )}
             </div>
 
             <div className="border-t border-slate-100 pt-3 flex justify-between items-baseline font-extrabold text-slate-900 text-base">
               <span>Total Pembayaran</span>
-              <span className="text-emerald-800">Rp {cartTotal.toLocaleString('id-ID')}</span>
+              <span className="text-emerald-800">
+                Rp {Math.round(subtotal - discountAmount).toLocaleString('id-ID')}
+              </span>
             </div>
 
             <button
@@ -201,3 +239,4 @@ export const CartPage: React.FC<CartPageProps> = ({ setActiveTab }) => {
     </div>
   );
 };
+

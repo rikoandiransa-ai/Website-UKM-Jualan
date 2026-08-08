@@ -100,10 +100,10 @@ export const PaymentUploadPage: React.FC<PaymentUploadPageProps> = ({ orderData,
       {/* Payment Target Account Info */}
       <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm space-y-3 text-xs">
         <h3 className="font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-2">
-          <CreditCard className="w-4 h-4 text-emerald-600" /> Rekening Tujuan Transfer
+          <CreditCard className="w-4 h-4 text-emerald-600" /> Informasi Rekening & Metode Pembayaran Tujuan
         </h3>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
           <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80">
             <span className="font-bold text-slate-800 block">Bank BCA</span>
             <p className="font-mono text-emerald-800 font-bold text-sm my-0.5">123-456-7890</p>
@@ -113,6 +113,26 @@ export const PaymentUploadPage: React.FC<PaymentUploadPageProps> = ({ orderData,
             <span className="font-bold text-slate-800 block">Bank Mandiri</span>
             <p className="font-mono text-emerald-800 font-bold text-sm my-0.5">987-654-3210</p>
             <p className="text-[11px] text-slate-500">a/n Toko Karya UMKM Nusantara</p>
+          </div>
+          <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80">
+            <span className="font-bold text-slate-800 block">Bank BNI</span>
+            <p className="font-mono text-emerald-800 font-bold text-sm my-0.5">456-789-0123</p>
+            <p className="text-[11px] text-slate-500">a/n Toko Karya UMKM Nusantara</p>
+          </div>
+          <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80">
+            <span className="font-bold text-slate-800 block">Bank BRI</span>
+            <p className="font-mono text-emerald-800 font-bold text-sm my-0.5">321-098-7654</p>
+            <p className="text-[11px] text-slate-500">a/n Toko Karya UMKM Nusantara</p>
+          </div>
+          <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80">
+            <span className="font-bold text-slate-800 block">Bank BSI (Syariah)</span>
+            <p className="font-mono text-emerald-800 font-bold text-sm my-0.5">712-345-6789</p>
+            <p className="text-[11px] text-slate-500">a/n Toko Karya UMKM Nusantara</p>
+          </div>
+          <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80">
+            <span className="font-bold text-slate-800 block">Gerai Indomaret / Alfamart</span>
+            <p className="font-mono text-emerald-800 font-bold text-sm my-0.5">Kode: UMKM-{orderData.id + 88000}</p>
+            <p className="text-[11px] text-slate-500">Tunjukkan kode ke kasir retail</p>
           </div>
         </div>
       </div>

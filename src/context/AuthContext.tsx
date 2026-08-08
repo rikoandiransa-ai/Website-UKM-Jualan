@@ -36,22 +36,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const res = await api.get('/auth/profile');
       if (res.data.success) {
         setUser(res.data.data);
+        localStorage.setItem('umkm_user', JSON.stringify(res.data.data));
       } else {
         logout();
       }
-    } catch (error) {
-      console.error('Failed to load profile:', error);
-      // Fallback local user if API fails or token expires
-      const savedUser = localStorage.getItem('umkm_user');
-      if (savedUser) {
-        try {
-          setUser(JSON.parse(savedUser));
-        } catch {
-          logout();
-        }
-      } else {
-        logout();
-      }
+    } catch {
+      // If token is invalid or request fails, perform clean logout
+      logout();
     } finally {
       setLoading(false);
     }

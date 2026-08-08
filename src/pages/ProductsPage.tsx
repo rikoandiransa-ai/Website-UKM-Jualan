@@ -199,6 +199,53 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
             </div>
           </div>
 
+          {/* Active Filter Chips & Clear Filters Banner */}
+          {(searchQuery || selectedCategory || minPrice > 0 || maxPrice < 500000 || minRating > 0) && (
+            <div className="bg-emerald-50/80 border border-emerald-100 p-2.5 px-3.5 rounded-xl flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="font-semibold text-emerald-900 text-[11px]">Filter Aktif:</span>
+                {searchQuery && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-800 text-[11px] font-medium">
+                    "{searchQuery}"
+                    <button onClick={() => setSearchQuery('')} className="hover:text-emerald-950">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                )}
+                {selectedCategory && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-800 text-[11px] font-medium">
+                    Kategori: {categories.find((c) => c.slug === selectedCategory)?.name || selectedCategory}
+                    <button onClick={() => setSelectedCategory('')} className="hover:text-emerald-950">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                )}
+                {maxPrice < 500000 && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-800 text-[11px] font-medium">
+                    Max: Rp {maxPrice.toLocaleString('id-ID')}
+                    <button onClick={() => setMaxPrice(500000)} className="hover:text-emerald-950">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                )}
+                {minRating > 0 && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-800 text-[11px] font-medium">
+                    Rating: ≥ {minRating}★
+                    <button onClick={() => setMinRating(0)} className="hover:text-emerald-950">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={resetFilters}
+                className="text-[11px] font-bold text-emerald-700 hover:text-emerald-900 underline flex items-center gap-1 ml-auto shrink-0"
+              >
+                <RefreshCw className="w-3 h-3" /> Bersihkan Filter
+              </button>
+            </div>
+          )}
+
           {/* Product Grid */}
           {loading ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
